@@ -1,5 +1,6 @@
 package frc.robot.swerve;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -23,7 +24,7 @@ public class Swervedrive extends SubsystemBase{
     Translation2d m_backLeftPosition;
     Translation2d m_backRightPosition;
 
-    SwerveDriveOdometry swerveOdometry;
+    SwerveDrivePoseEstimator m_swervePoseEstimator;
     Pose2d m_pose;
     
     NetworkTableInstance inst;
@@ -73,7 +74,7 @@ public class Swervedrive extends SubsystemBase{
         m_swerveKinematics = new SwerveDriveKinematics(m_frontLeftPosition, m_frontRightPosition, m_backLeftPosition, m_backRightPosition);
 
         gyro = new Gyro();
-        swerveOdometry = new SwerveDriveOdometry(m_swerveKinematics, gyro.getRotation(), new SwerveModulePosition[]{
+        m_swervePoseEstimator = new SwerveDrivePoseEstimator(m_swerveKinematics, gyro.getRotation(), new SwerveModulePosition[]{
             fL.getModulePosition(), fR.getModulePosition(), bL.getModulePosition(), bR.getModulePosition()
         }, Constants.SwerveConstants.k_startPose);
 
@@ -86,7 +87,7 @@ public class Swervedrive extends SubsystemBase{
 
     @Override
     public void periodic(){
-        m_pose = swerveOdometry.update(gyro.getRotation(), new SwerveModulePosition[]{
+        m_pose = m_swervePoseEstimator.update(gyro.getRotation(), new SwerveModulePosition[]{
              fL.getModulePosition(), fR.getModulePosition(), bL.getModulePosition(), bR.getModulePosition()
         });
 
