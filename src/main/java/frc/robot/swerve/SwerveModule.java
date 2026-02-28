@@ -24,12 +24,9 @@ public class SwerveModule extends SubsystemBase{
     TalonFX m_driveMotor;
     TalonFX m_turnMotor;
 
-    Slot0Configs m_driveConfig;
-    Slot0Configs m_turnConfig;
+    TalonFXConfiguration m_driveConfig;
+    TalonFXConfiguration m_turnConfig;
 
-    MotorOutputConfigs m_driveOutputConfigs;
-    MotorOutputConfigs m_turnOutputConfigs;
-    
     AnalogEncoder m_absoluteEncoder;
 
     final PositionVoltage m_turnRequest = new PositionVoltage(0).withSlot(0);
@@ -43,27 +40,27 @@ public class SwerveModule extends SubsystemBase{
 
         m_absoluteEncoder = new AnalogEncoder(absEncoderPort);
 
-        m_driveConfig = new Slot0Configs();
-        m_turnConfig = new Slot0Configs();
+        m_driveConfig = new TalonFXConfiguration();
+        m_turnConfig = new TalonFXConfiguration();
 
-        m_driveConfig.kP = Constants.SwerveConstants.k_driveKP;
-        m_driveConfig.kI = Constants.SwerveConstants.k_driveKI;
-        m_driveConfig.kD = Constants.SwerveConstants.k_driveKD;
 
-        m_turnConfig.kP = Constants.SwerveConstants.k_turnKP;
-        m_turnConfig.kI = Constants.SwerveConstants.k_turnKI;
-        m_turnConfig.kD = Constants.SwerveConstants.k_turnKD;
+        m_driveConfig.Slot0.kP = Constants.SwerveConstants.k_driveKP;
+        m_driveConfig.Slot0.kI = Constants.SwerveConstants.k_driveKI;
+        m_driveConfig.Slot0.kD = Constants.SwerveConstants.k_driveKD;
 
-        m_turnOutputConfigs = new MotorOutputConfigs();
-        m_driveOutputConfigs = new MotorOutputConfigs();
+        m_turnConfig.Slot0.kP = Constants.SwerveConstants.k_turnKP;
+        m_turnConfig.Slot0.kI = Constants.SwerveConstants.k_turnKI;
+        m_turnConfig.Slot0.kD = Constants.SwerveConstants.k_turnKD;
+
 
         //TODO I have no clue something with inversion
-        m_turnOutputConfigs.Inverted = InvertedValue.Clockwise_Positive;
-        m_driveOutputConfigs.Inverted = InvertedValue.Clockwise_Positive;
+        m_turnConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        m_driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+        m_turnConfig.Feedback.SensorToMechanismRatio = Constants.SwerveConstants.k_turnGearRatio;
 
-        m_driveOutputConfigs.NeutralMode = NeutralModeValue.Brake;
-        m_turnOutputConfigs.NeutralMode = NeutralModeValue.Brake;
+        m_driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        m_turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         m_driveMotor.getConfigurator().apply(m_driveConfig);
         m_turnMotor.getConfigurator().apply(m_turnConfig);
@@ -74,8 +71,9 @@ public class SwerveModule extends SubsystemBase{
     public void Drive(SwerveModuleState moduleState){
         m_moduleState = moduleState;
         m_moduleState.optimize(this.getAngleRotation2d());
+        m_moduleState.speedMetersPerSecond *= m_moduleState.angle.minus(this.getAngleRotation2d()).getCos();
         m_driveMotor.setControl(m_driveRequest.withVelocity(m_moduleState.speedMetersPerSecond * Constants.SwerveConstants.k_driveGearRatio));
-        m_turnMotor.setControl(m_turnRequest.withPosition(m_moduleState.angle.getRotations() * Constants.SwerveConstants.k_turnGearRatio));
+        m_turnMotor.setControl(m_turnRequest.withPosition(m_moduleState.angle.getRotations()));
     }
 
     public double getAnglePositionRot(){
