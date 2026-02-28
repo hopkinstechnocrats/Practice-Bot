@@ -72,7 +72,7 @@ public class Swervedrive extends SubsystemBase{
 
         m_swerveKinematics = new SwerveDriveKinematics(m_frontLeftPosition, m_frontRightPosition, m_backLeftPosition, m_backRightPosition);
 
-        gyro = new Gyro(Constants.GyroConstants.k_gyroID);
+        gyro = new Gyro();
         swerveOdometry = new SwerveDriveOdometry(m_swerveKinematics, gyro.getRotation(), new SwerveModulePosition[]{
             fL.getModulePosition(), fR.getModulePosition(), bL.getModulePosition(), bR.getModulePosition()
         }, Constants.SwerveConstants.k_startPose);
