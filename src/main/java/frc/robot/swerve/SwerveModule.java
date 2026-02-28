@@ -58,6 +58,7 @@ public class SwerveModule extends SubsystemBase{
         m_driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         m_turnConfig.Feedback.SensorToMechanismRatio = Constants.SwerveConstants.k_turnGearRatio;
+        m_turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
         m_driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         m_turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -65,7 +66,7 @@ public class SwerveModule extends SubsystemBase{
         m_driveMotor.getConfigurator().apply(m_driveConfig);
         m_turnMotor.getConfigurator().apply(m_turnConfig);
 
-        m_turnMotor.getConfigurator().setPosition(m_absoluteEncoder.get()-absEcoderOffset);
+        m_turnMotor.getConfigurator().setPosition((m_absoluteEncoder.get()-absEcoderOffset)*Constants.SwerveConstants.k_turnGearRatio);
     }
 
     public void Drive(SwerveModuleState moduleState){
@@ -89,7 +90,7 @@ public class SwerveModule extends SubsystemBase{
     }
 
     public Rotation2d getAngleRotation2d(){
-        return new Rotation2d((m_turnMotor.getPosition().getValueAsDouble() * Math.PI * 2 )/Constants.SwerveConstants.k_turnGearRatio ); 
+        return new Rotation2d((m_turnMotor.getPosition().getValueAsDouble() / Constants.SwerveConstants.k_turnGearRatio)* Math.PI * 2); 
     }
 
     public SwerveModulePosition getModulePosition(){
