@@ -35,8 +35,8 @@ public class SwerveModule extends SubsystemBase{
     SwerveModuleState m_moduleState;
 
     SwerveModule(int driveID, int turnID, int absEncoderPort, double absEcoderOffset){
-        m_driveMotor = new TalonFX(driveID, new CANBus("GertrudeGreyser"));
-        m_turnMotor = new TalonFX(turnID, new CANBus("GertrudeGreyser"));
+        m_driveMotor = new TalonFX(driveID);
+        m_turnMotor = new TalonFX(turnID);
 
         m_absoluteEncoder = new AnalogEncoder(absEncoderPort);
 
@@ -73,7 +73,7 @@ public class SwerveModule extends SubsystemBase{
         m_moduleState = moduleState;
         m_moduleState.optimize(this.getAngleRotation2d());
         m_moduleState.speedMetersPerSecond *= m_moduleState.angle.minus(this.getAngleRotation2d()).getCos();
-        m_driveMotor.setControl(m_driveRequest.withVelocity(m_moduleState.speedMetersPerSecond * Constants.SwerveConstants.k_driveGearRatio));
+        m_driveMotor.setControl(m_driveRequest.withVelocity(m_moduleState.speedMetersPerSecond));
         m_turnMotor.setControl(m_turnRequest.withPosition(m_moduleState.angle.getRotations()));
     }
 
@@ -90,7 +90,7 @@ public class SwerveModule extends SubsystemBase{
     }
 
     public Rotation2d getAngleRotation2d(){
-        return new Rotation2d((m_turnMotor.getPosition().getValueAsDouble() / Constants.SwerveConstants.k_turnGearRatio)* Math.PI * 2); 
+        return new Rotation2d(m_turnMotor.getPosition().getValueAsDouble()* Math.PI * 2); 
     }
 
     public SwerveModulePosition getModulePosition(){
